@@ -1,0 +1,4 @@
+/venv/
+/schema.sql
+/init_db.py
+/.idea/
