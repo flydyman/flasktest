@@ -2,8 +2,8 @@ from flask import render_template, url_for, flash, redirect, request
 from app import app, db
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.urls import url_parse
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm
-from app.models import User
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm
+from app.models import User, Post
 from datetime import datetime
 
 @app.before_request
@@ -27,16 +27,27 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', form=form)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, user_id=current_user.id)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is saved!')
+        return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        posts = current_user.followed_posts().all() # Post.query.filter_by(user_id=current_user.id)
+    else:
+        posts = None
+    return render_template('index.html', form=form, posts=posts)
 
 @app.route('/about')
 @login_required
 def about():
     return render_template('about.html')
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -117,3 +128,8 @@ def unfollow(username):
     else:
         return redirect(url_for('index'))
 
+@app.route('/explore')
+@login_required
+def explore():
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', posts=posts)
