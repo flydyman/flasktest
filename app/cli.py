@@ -2,12 +2,12 @@ import os
 import click
 from app import app
 
-@app.cli.group
+@app.cli.group()
 def translate():
     """Translation and localization commands."""
     pass
 
-@translate.command
+@translate.command()
 def update():
     """Update all languages."""
     if os.system('pybabel extract -F babel.cfg -k _l -o messages.pot .'):
@@ -16,13 +16,13 @@ def update():
         raise RuntimeError('update command failed')
     os.remove('messages.opt')
 
-@translate.command
+@translate.command()
 def compile_it():
     """Compile all languages."""
     if os.system('pybabel compile -d app/translations'):
         raise RuntimeError('compile command failed')
 
-@translate.command
+@translate.command()
 @click.argument('lang')
 def init(lang):
     """Initialize new language."""

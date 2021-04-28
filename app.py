@@ -7,6 +7,5 @@ def make_shell_context():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    cli.translate()
     app.run(debug=True)
 
