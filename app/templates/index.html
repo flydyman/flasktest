@@ -23,5 +23,13 @@
 {% for post in posts %}
     {% include '_post.html' %}
 {% endfor %}
+    <p>
+    {% if prev_url %}
+        <a href="{{ prev_url }}" class="btn btn-outline-dark">Prev</a>
+    {% endif %}
+        {% if next_url %}
+        <a href="{{ next_url }}" class="btn btn-outline-dark">Next</a>
+        {% endif %}
+    </p>
 {% endif %}
 {% endblock %}

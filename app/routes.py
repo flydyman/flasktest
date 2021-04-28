@@ -2,8 +2,9 @@ from flask import render_template, url_for, flash, redirect, request
 from app import app, db
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.urls import url_parse
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User, Post
+from app.email import send_password_reset_email
 from datetime import datetime
 
 @app.before_request
@@ -28,6 +29,7 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
@@ -36,11 +38,13 @@ def index():
         db.session.commit()
         flash('Your post is saved!')
         return redirect(url_for('index'))
-    if current_user.is_authenticated:
-        posts = current_user.followed_posts().all() # Post.query.filter_by(user_id=current_user.id)
-    else:
-        posts = None
-    return render_template('index.html', form=form, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('index.html', form=form, posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 @app.route('/about')
 @login_required
@@ -82,7 +86,7 @@ def register():
 @app.route('/user/<username>')
 @login_required
 def user(username):
-    u = User.query.filter_by(username=username).first()
+    u = User.query.filter_by(username=username).first_or_404()
     form = EmptyForm()
     return render_template('user.html', user=u, form=form)
 
@@ -131,5 +135,39 @@ def unfollow(username):
 @app.route('/explore')
 @login_required
 def explore():
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html', posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('explore', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('explore', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('index.html', posts=posts.items, next_url=next_url, prev_url=prev_url)
+
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for instructions')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html', form=form)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Password changed')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
+
