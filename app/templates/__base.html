@@ -87,5 +87,8 @@
     <div class="container">
       {% block body %}{% endblock %}
     </div>
+{% block scripts %}
+    {{ moment.include_moment() }}
+{% endblock %}
 </body>
 </html>
