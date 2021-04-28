@@ -1,5 +1,5 @@
 {% extends '__base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}{{ _('Login') }}{% endblock %}
 {% block body %}
 <h1>Sign In</h1>
 <form method="POST" action="" novalidate class="form-control form">
@@ -19,7 +19,7 @@
         {% endfor %}
     </p>
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-    <p>{{ form.submit() }}<a class="btn btn-outline-dark" href="{{ url_for('register') }}">Register</a></p>
-    <p>Forgot password? <a href="{{ url_for('reset_password_request') }}">Click to reset</a></p>
+    <p>{{ form.submit() }}<a class="btn btn-outline-dark" href="{{ url_for('register') }}">{{ _('Register') }}</a></p>
+    <p>Forgot password? <a href="{{ url_for('reset_password_request') }}">{{ _('Click to Reset') }}</a></p>
 </form>
 {% endblock %}

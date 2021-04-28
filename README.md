@@ -8,6 +8,7 @@
 - flask-mail
 - pyjwt
 - flask-moment
+- flask-babel
 
 **Not implemented:**
 - flask-bootstrap (used last original from official site)\

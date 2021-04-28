@@ -1,7 +1,7 @@
 {% extends '__base.html' %}
-{% block title %}Registration{% endblock %}
+{% block title %}{{ _('Registration') }}{% endblock %}
 {% block body %}
-<h1>Registration</h1>
+<h1>{{ _('Registration') }}</h1>
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <p>

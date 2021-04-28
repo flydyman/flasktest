@@ -2,3 +2,4 @@
 /schema.sql
 /init_db.py
 /.idea/
+/messages.pot
