@@ -1,14 +1,6 @@
-**Packages:**
-- flask
-- flask-login
-- flask-wtf
-- flask-sqlalchemy
-- flask-migrate
-- email-validator
-- flask-mail
-- pyjwt
-- flask-moment
-- flask-babel
+**Packages:**\
+Was moved into `req.txt`. Install:\
+`pip install -r req.txt`
 
 **Not implemented:**
 - flask-bootstrap (used last original from official site)\

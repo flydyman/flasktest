@@ -1,4 +1,4 @@
 <p><img src="{{ post.author.avatar(36) }}">
-    <a href="{{ url_for('user', username=post.author.username) }}">{{ post.author.username }}</a>
+    <a href="{{ url_for('main.user', username=post.author.username) }}">{{ post.author.username }}</a>
     {{ _('said') }}: <b>{{ post.body }}</b> {{ moment(post.timestamp).fromNow() }}
 </p>
